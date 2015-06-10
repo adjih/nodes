@@ -34,8 +34,8 @@
 
 #define BUFSZ 250 // TODO: size ok?
 #define HYSTERESIS 10 // TODO: value ok?
-#define WATR_LI_CHANNEL         (21)     /**< The used channel */
-#define WATR_LI_PAN             (0x03e9) /**< The used PAN ID */
+#define WATR_LI_CHANNEL         (22)     /**< The used channel */
+#define WATR_LI_PAN             (0x0123) /**< The used PAN ID */
 #define WATR_LI_IFACE           (0)      /**< The used Trasmssion device */
 #define WATR_LI_UDP_PORT        (5683)  /**< The UDP port to listen */
 #define WATR_LI_UDP_BUFFER_SIZE (1024)   /**< The buffer size for receiving UDPs */
