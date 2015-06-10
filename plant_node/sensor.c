@@ -1,6 +1,6 @@
 #include "sensor.h"
 
-#define ENABLE_DEBUG (0)
+#define ENABLE_DEBUG (1)
 #include "debug.h"
 
 timex_t sensor_timer;

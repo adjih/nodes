@@ -158,6 +158,7 @@ int send_status_humidity(unsigned int *humidity)
  * @brief decide if the change in humidity is not just a slight variation.
  */
 bool significant_humidity_change(unsigned int *prev_humidity, unsigned int *humidity){
+    return true; /* XXX: CA: hack */
     if (*prev_humidity == *humidity){
         return false;
     }
@@ -376,8 +377,11 @@ static int watr_li_init_rpl(void)
 {
     DEBUG("%s()\n", __func__);
 
+    DEBUG("DOING: rpl_init(WATR_LI_IFACE)\n");
     rpl_init(WATR_LI_IFACE);
+    DEBUG("..done. DOING: ipv6_iface_set_routing[...]\n");
     ipv6_iface_set_routing_provider(rpl_get_next_hop);
+    DEBUG("..done. Returning from watr_li_init_rpl\n");
     return 0;
 }
 
