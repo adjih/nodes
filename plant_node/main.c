@@ -71,9 +71,15 @@ int bytes_sent;
 
 int main(void)
 {
-  static unsigned int humidity, prev_humidity, sent_humidity;
+    static unsigned int humidity, prev_humidity, sent_humidity;
     timex_t timer = timex_set(10, 0); /* seconds */
     udp_send_timer = timex_set(5,0);
+
+#ifdef BOARD_IOT_LAB_M3
+    LED_RED_ON;
+    LED_GREEN_OFF;
+    LED_ORANGE_OFF;
+#endif
 
     DEBUG("Setting up watr.li app...\n");
     watr_li_setup_node(); /* also sets iface_id in the process */
@@ -89,7 +95,7 @@ int main(void)
 
     vtimer_sleep(timer);
 
-    LED_ON;
+    //LED_ON;
 
     /* register my_id at the root node */
     if (0 != register_at_root(my_id)){
@@ -122,14 +128,14 @@ int main(void)
     */
 
     /* maximum number of 'loop ticks' without sending anything at all */
-    const unsigned long ForcedSendDelay = 100 /* loop ticks */ ;
+    const unsigned long ForcedSendDelay = 30 /* loop ticks */ ;
     /* maximum number of 'loop ticks' without sending a change */
-    const unsigned long MaxSendDelay = 30 /* loop ticks */ ;
+    const unsigned long MaxSendDelay = 10 /* loop ticks */ ;
     /* minimum number of 'loop ticks' between sending to significant changes */
-    const unsigned long MinSendDelay = 5 /* loop ticks */ ;
+    const unsigned long MinSendDelay = 2 /* loop ticks */ ;
 
 
-    timex_t short_timer = timex_set(0, 100000 /*microseconds*/);
+    timex_t short_timer = timex_set(0, 300000 /*microseconds*/);
     uint32_t ticks_current = 0;
     uint32_t ticks_last_send = (uint32_t)(-2*MaxSendDelay);
 
@@ -139,15 +145,33 @@ int main(void)
     while (1) 
     {
         ticks_current++;
-	if (ticks_current % 5 == 0) {
-  	    LED_TOGGLE;
-	}
+
+#ifdef BOARD_IOT_LAB_M3
+	//if (ticks_current % 5 == 0) {
+	LED_GREEN_TOGGLE;
+	//}
+#endif
+
 
         prev_humidity = humidity;
         sensor_get_humidity(&humidity);
 	state_changed |= (humidity != prev_humidity);
 	state_significantly_changed
 	  |= significant_humidity_change(&sent_humidity, &humidity);
+
+#ifdef BOARD_IOT_LAB_M3
+	if (humidity < 1500) {
+	  LED_RED_ON;
+	  LED_ORANGE_OFF;
+	} else if (humidity < 3000) {
+	  LED_RED_OFF;
+	  LED_ORANGE_ON;
+	} else {
+	  LED_RED_OFF;
+	  LED_ORANGE_OFF;
+	}
+#endif
+
 
 	bool should_send1 = 
 	  ((uint32_t)(ticks_current - ticks_last_send) >= ForcedSendDelay);
@@ -318,12 +342,20 @@ static void watr_li_udp_send(char* payload, size_t payload_size)
     rpl_dodag_t *mydodag = rpl_get_my_dodag();
 
     while(mydodag == NULL) {
+#ifdef BOARD_IOT_LAB_M3
+      LED_ORANGE_ON;
+      LED_RED_TOGGLE;
+#endif
         puts("[watr_li_udp_send] Waiting before node joins dodag before sending!");
         vtimer_sleep(udp_send_timer);
         mydodag = rpl_get_my_dodag();
     }
 
     if(mydodag != NULL) {
+#ifdef BOARD_IOT_LAB_M3
+      LED_ORANGE_OFF;
+      LED_RED_OFF;
+#endif
         memset(&sa, 0, sizeof(sa));
         sa.sin6_family = AF_INET;
         memcpy(&sa.sin6_addr, &(mydodag->dodag_id), 16);

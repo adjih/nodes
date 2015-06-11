@@ -82,13 +82,63 @@ void sensor_get_humidity(unsigned int *humidity)
 /* -------------------------------------------------- */
 #else /* BOARD_IOT_LAB_M3 */
 
+#include "vtimer.h"
+#include "lsm303dlhc.h"
+
+/* from RIOT/tests/driver_lsm303dlhc/Makefile */
+
+#define TEST_LSM303DLHC_MAG_ADDR 30
+#define TEST_LSM303DLHC_ACC_ADDR 25
+#define TEST_LSM303DLHC_I2C I2C_0
+
+#define TEST_LSM303DLHC_ACC_PIN GPIO_0 /* "random default" ? */
+#define TEST_LSM303DLHC_MAG_PIN GPIO_1 /* "random default" ? */
+
+/* -------------------------------------------------- */
+
+#define SLEEP       (100 * 1000U)
+#define ACC_S_RATE  LSM303DLHC_ACC_SAMPLE_RATE_10HZ
+#define ACC_SCALE   LSM303DLHC_ACC_SCALE_2G
+#define MAG_S_RATE  LSM303DLHC_MAG_SAMPLE_RATE_75HZ
+#define MAG_GAIN    LSM303DLHC_MAG_GAIN_400_355_GAUSS
+
+lsm303dlhc_t dev;
+int16_t temp_value;
+lsm303dlhc_3d_data_t acc_value;
+
 int sensor_init(void)
 {
+  
+  DEBUG("Initializing LSM303DLHC sensor at I2C_%i... ", TEST_LSM303DLHC_I2C);
+
+  if (lsm303dlhc_init(&dev, TEST_LSM303DLHC_I2C, TEST_LSM303DLHC_ACC_PIN, TEST_LSM303DLHC_MAG_PIN,
+		      TEST_LSM303DLHC_ACC_ADDR, ACC_S_RATE, ACC_SCALE,
+		      TEST_LSM303DLHC_MAG_ADDR, MAG_S_RATE, MAG_GAIN) == 0) {
+    DEBUG("[OK]\n");
+  }
+  else {
+    DEBUG("[Failed]\n");
+    return 1;
+  }
+
   return 0;
 }
 
+//static unsigned int old_state = 0;
+
 void sensor_get_humidity(unsigned int *humidity)
 {
+  *humidity = 0;
+  if (lsm303dlhc_read_acc(&dev, &acc_value) == 0) {
+    DEBUG("Accelerometer x: %i y: %i z: %i\n", acc_value.x_axis,
+	   acc_value.y_axis,
+	   acc_value.z_axis);
+    if (acc_value.x_axis < -360) 
+      *humidity = 0;
+    else if (acc_value.x_axis < 800)
+      *humidity = 1500;
+    else *humidity = 3000;
+  }
 }
 
 /* -------------------------------------------------- */
