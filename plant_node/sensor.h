@@ -6,6 +6,7 @@
 #include "cpu.h"
 #include "board.h"
 #include "vtimer.h"
+#include "periph_conf.h"
 #include "periph/adc.h"
 #include "periph/gpio.h"
 
@@ -17,6 +18,7 @@
 #define ADC_IN_USE                  ADC_0
 #define ADC_CHANNEL_USE             0
 #define GPIO_POWER_PIN              GPIO_0
+#define GPIO_BUTTON_PIN             GPIO_1
 
 /**
  * @brief    Initialize humidity sensor.

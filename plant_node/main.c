@@ -71,7 +71,7 @@ int bytes_sent;
 
 int main(void)
 {
-    static unsigned int humidity, prev_humidity;
+  static unsigned int humidity, prev_humidity, sent_humidity;
     timex_t timer = timex_set(10, 0); /* seconds */
     udp_send_timer = timex_set(5,0);
 
@@ -89,6 +89,8 @@ int main(void)
 
     vtimer_sleep(timer);
 
+    LED_ON;
+
     /* register my_id at the root node */
     if (0 != register_at_root(my_id)){
         DEBUG("register_at_root failed\n");
@@ -98,6 +100,8 @@ int main(void)
     sensor_init();
 
     DEBUG("...Done. Bring it on, plants!\n");
+
+#if 0
     while (1)
     {
         prev_humidity = humidity;
@@ -106,6 +110,67 @@ int main(void)
             send_status_humidity(&humidity);
         }
         vtimer_sleep(timer);
+    }
+#endif
+
+    /* New application logic: 
+       - (unchanged) state must be sent at least periodically (ForcedSendDelay)
+       - changed state (but not significant change) is sent 
+         with a delay of at least `MaxSendDelay'
+       - significant state changes are sent immediatly with the constraint
+         that two successive such sendings are separated by `MinSendDelay'.
+    */
+
+    /* maximum number of 'loop ticks' without sending anything at all */
+    const unsigned long ForcedSendDelay = 100 /* loop ticks */ ;
+    /* maximum number of 'loop ticks' without sending a change */
+    const unsigned long MaxSendDelay = 30 /* loop ticks */ ;
+    /* minimum number of 'loop ticks' between sending to significant changes */
+    const unsigned long MinSendDelay = 5 /* loop ticks */ ;
+
+
+    timex_t short_timer = timex_set(0, 100000 /*microseconds*/);
+    uint32_t ticks_current = 0;
+    uint32_t ticks_last_send = (uint32_t)(-2*MaxSendDelay);
+
+    bool state_changed = true;
+    bool state_significantly_changed = true;
+    sent_humidity = humidity;
+    while (1) 
+    {
+        ticks_current++;
+	if (ticks_current % 5 == 0) {
+  	    LED_TOGGLE;
+	}
+
+        prev_humidity = humidity;
+        sensor_get_humidity(&humidity);
+	state_changed |= (humidity != prev_humidity);
+	state_significantly_changed
+	  |= significant_humidity_change(&sent_humidity, &humidity);
+
+	bool should_send1 = 
+	  ((uint32_t)(ticks_current - ticks_last_send) >= ForcedSendDelay);
+	bool should_send2 =
+	  (state_changed && 
+	   ((uint32_t)(ticks_current - ticks_last_send) >= MaxSendDelay));
+	bool should_send3 =
+	  (state_significantly_changed &&
+	   ((uint32_t)(ticks_current - ticks_last_send) >= MinSendDelay));
+
+	if (should_send1 || should_send2 || should_send3) {
+	    DEBUG("Sending (%d/%d/%d:%d/%d) sensor=%d[%d]\n",
+		  should_send1, should_send2, should_send3,
+		  state_changed, state_significantly_changed,
+		  humidity, sent_humidity
+		  );
+  	    send_status_humidity(&humidity);
+	    sent_humidity = humidity;
+	    state_changed = false;
+	    state_significantly_changed = false;
+	    ticks_last_send = ticks_current;
+	}
+	vtimer_sleep(short_timer);
     }
 
     DEBUG("Shutting down...\n");
@@ -158,10 +223,12 @@ int send_status_humidity(unsigned int *humidity)
  * @brief decide if the change in humidity is not just a slight variation.
  */
 bool significant_humidity_change(unsigned int *prev_humidity, unsigned int *humidity){
-    return true; /* XXX: CA: hack */
+
     if (*prev_humidity == *humidity){
         return false;
     }
+    return true; /* XXX: CA: hack */
+
     if (*prev_humidity < *humidity
         && (*prev_humidity+HYSTERESIS) > *humidity ){
         return false;

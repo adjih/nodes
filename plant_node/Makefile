@@ -5,7 +5,7 @@ BOARD ?= samr21-xpro
 # #to avoid flooding the RAM
 #RPL_MAX_ROUTING_ENTRIES = 4
 RIOTBASE ?= $(CURDIR)/../../RIOT
-FEATURES_REQUIRED = periph_adc
+FEATURES_REQUIRED = periph_adc periph_gpio
 CFLAGS += -DDEVELHELP -DMICROCOAP_DEBUG -DRPL_MAX_ROUTING_ENTRIES=4
 
 USEPKG = microcoap
