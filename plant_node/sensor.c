@@ -96,6 +96,8 @@ void sensor_get_humidity(unsigned int *humidity)
 
 /* -------------------------------------------------- */
 
+//#define NO_SENSOR
+
 #define SLEEP       (100 * 1000U)
 #define ACC_S_RATE  LSM303DLHC_ACC_SAMPLE_RATE_10HZ
 #define ACC_SCALE   LSM303DLHC_ACC_SCALE_2G
@@ -108,7 +110,7 @@ lsm303dlhc_3d_data_t acc_value;
 
 int sensor_init(void)
 {
-  
+#ifndef NO_SENSOR  
   DEBUG("Initializing LSM303DLHC sensor at I2C_%i... ", TEST_LSM303DLHC_I2C);
 
   if (lsm303dlhc_init(&dev, TEST_LSM303DLHC_I2C, TEST_LSM303DLHC_ACC_PIN, TEST_LSM303DLHC_MAG_PIN,
@@ -120,7 +122,7 @@ int sensor_init(void)
     DEBUG("[Failed]\n");
     return 1;
   }
-
+#endif
   return 0;
 }
 
@@ -129,6 +131,7 @@ int sensor_init(void)
 void sensor_get_humidity(unsigned int *humidity)
 {
   *humidity = 0;
+#ifndef NO_SENSOR
   if (lsm303dlhc_read_acc(&dev, &acc_value) == 0) {
     DEBUG("Accelerometer x: %i y: %i z: %i\n", acc_value.x_axis,
 	   acc_value.y_axis,
@@ -139,6 +142,11 @@ void sensor_get_humidity(unsigned int *humidity)
       *humidity = 1500;
     else *humidity = 3000;
   }
+#else
+  timex_t current_time;
+  vtimer_now(&current_time);
+  *humidity = ((current_time.seconds/10) % 3)*1500;
+#endif
 }
 
 /* -------------------------------------------------- */
