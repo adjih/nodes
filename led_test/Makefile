@@ -1,7 +1,13 @@
-APPLICATION = plant_node
+APPLICATION = led_test
 #include ../Makefile.tests_common
 
-BOARD ?= samr21-xpro
+#BOARD ?= samr21-xpro
+
+RIOTBASE ?= $(CURDIR)/../../RIOT-adjih
+#RIOTBASE ?= $(CURDIR)/../../RIOT-latest
+#BOARD ?= iot-lab_M3
+BOARD ?= fox
+
 # #to avoid flooding the RAM
 #RPL_MAX_ROUTING_ENTRIES = 4
 RIOTBASE ?= $(CURDIR)/../../RIOT
@@ -19,11 +25,11 @@ ifneq (,$(filter fox,$(BOARD)))
 endif
 
 
-USEPKG = microcoap
+#USEPKG = microcoap
 
 USEMODULE += vtimer
-USEMODULE += rpl
-USEMODULE += udp
-USEMODULE += defaulttransceiver
+#USEMODULE += rpl
+#USEMODULE += udp
+#USEMODULE += defaulttransceiver
 
 include $(RIOTBASE)/Makefile.include

@@ -6,7 +6,9 @@
 #include "debug.h"
 
 /* -------------------------------------------------- */
-#ifndef BOARD_IOT_LAB_M3
+
+
+#if !defined(BOARD_IOT_LAB_M3) && !defined(BOARD_FOX)
 
 timex_t sensor_timer;
 

@@ -75,7 +75,7 @@ int main(void)
     timex_t timer = timex_set(10, 0); /* seconds */
     udp_send_timer = timex_set(5,0);
 
-#ifdef BOARD_IOT_LAB_M3
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
     LED_RED_ON;
     LED_GREEN_OFF;
     LED_ORANGE_OFF;
@@ -146,7 +146,7 @@ int main(void)
     {
         ticks_current++;
 
-#ifdef BOARD_IOT_LAB_M3
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
 	//if (ticks_current % 5 == 0) {
 	LED_GREEN_TOGGLE;
 	//}
@@ -159,7 +159,7 @@ int main(void)
 	state_significantly_changed
 	  |= significant_humidity_change(&sent_humidity, &humidity);
 
-#ifdef BOARD_IOT_LAB_M3
+#if defined(BOARD_IOT_LAB_M3) 
 	if (humidity < 1500) {
 	  LED_RED_ON;
 	  LED_ORANGE_OFF;
@@ -172,6 +172,18 @@ int main(void)
 	}
 #endif
 
+#if defined (BOARD_FOX)
+	if (humidity < 1500) {
+	  LED_RED_OFF;
+	  //LED_ORANGE_OFF;
+	} else if (humidity < 3000) {
+	  LED_RED_ON;
+	  ///LED_ORANGE_ON;
+	} else {
+	  LED_RED_OFF;
+	  //	  LED_ORANGE_OFF;
+	}
+#endif
 
 	bool should_send1 = 
 	  ((uint32_t)(ticks_current - ticks_last_send) >= ForcedSendDelay);
@@ -342,7 +354,7 @@ static void watr_li_udp_send(char* payload, size_t payload_size)
     rpl_dodag_t *mydodag = rpl_get_my_dodag();
 
     while(mydodag == NULL) {
-#ifdef BOARD_IOT_LAB_M3
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_ORANGE_ON;
       LED_RED_TOGGLE;
 #endif
@@ -352,7 +364,7 @@ static void watr_li_udp_send(char* payload, size_t payload_size)
     }
 
     if(mydodag != NULL) {
-#ifdef BOARD_IOT_LAB_M3
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_ORANGE_OFF;
       LED_RED_OFF;
 #endif
