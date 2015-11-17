@@ -4,6 +4,7 @@ APPLICATION = led_test
 #BOARD ?= samr21-xpro
 
 RIOTBASE ?= $(CURDIR)/../../RIOT-adjih
+#RIOTBASE ?= $(CURDIR)/../../../demo-riot-multi/RIOT-demo-multi
 #RIOTBASE ?= $(CURDIR)/../../RIOT-latest
 #BOARD ?= iot-lab_M3
 BOARD ?= fox

@@ -8,7 +8,8 @@
 #include <stdio.h>
 
 #include "vtimer.h"
-#include "udp.h"
+#include "board.h"
+//#include "udp.h"
 //#include "rpl.h"
 
 #define ENABLE_DEBUG (1)
@@ -20,25 +21,41 @@ int main(void)
 
     for (;;) {
       printf("Yow!\n");
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_RED_OFF;
       LED_GREEN_OFF;
       LED_ORANGE_OFF;
+#else
+      LED_TOGGLE;
+#endif
       vtimer_sleep(timer);
 
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_RED_ON;
       LED_GREEN_OFF;
       LED_ORANGE_OFF;
+#else
+      LED_TOGGLE;
+#endif
       vtimer_sleep(timer);
 
       printf("Yow2!\n");
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_RED_ON;
       LED_GREEN_ON;
       LED_ORANGE_OFF;
+#else
+      LED_TOGGLE;
+#endif
       vtimer_sleep(timer);
 
+#if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_RED_ON;
       LED_GREEN_ON;
       LED_ORANGE_ON;
+#else
+      LED_TOGGLE;
+#endif
       vtimer_sleep(timer);
     }
 }
