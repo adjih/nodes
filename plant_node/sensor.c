@@ -1,4 +1,4 @@
-
+//#define NO_SENSOR
 
 #include "sensor.h"
 

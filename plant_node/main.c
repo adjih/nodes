@@ -79,6 +79,8 @@ int main(void)
     LED_RED_ON;
     LED_GREEN_OFF;
     LED_ORANGE_OFF;
+#else
+    LED_ON;
 #endif
 
     DEBUG("Setting up watr.li app...\n");
@@ -150,6 +152,8 @@ int main(void)
 	//if (ticks_current % 5 == 0) {
 	LED_GREEN_TOGGLE;
 	//}
+#else
+	LED_TOGGLE;
 #endif
 
 
@@ -357,6 +361,8 @@ static void watr_li_udp_send(char* payload, size_t payload_size)
 #if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_ORANGE_ON;
       LED_RED_TOGGLE;
+#else
+      LED_TOGGLE;
 #endif
         puts("[watr_li_udp_send] Waiting before node joins dodag before sending!");
         vtimer_sleep(udp_send_timer);
@@ -367,6 +373,8 @@ static void watr_li_udp_send(char* payload, size_t payload_size)
 #if defined(BOARD_IOT_LAB_M3) || defined (BOARD_FOX)
       LED_ORANGE_OFF;
       LED_RED_OFF;
+#else 
+      LED_ON;
 #endif
         memset(&sa, 0, sizeof(sa));
         sa.sin6_family = AF_INET;
